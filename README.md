@@ -158,7 +158,7 @@ The terminal UI shows session state, a live command timeline, details for the se
 
 | Command | Purpose |
 | --- | --- |
-| `pwnj start <box> [--ip ...] [--platform htb|thm]` | Start or resume a box session. |
+| `pwnj start <box> [--ip ...] [--platform htb|thm]` | Start a new session or resume an existing one. |
 | `pwnj stop [box] [--platform ...]` | Stop the current or named session. |
 | `pwnj pause [box] [--platform ...]` | Pause tracking without losing the session. |
 | `pwnj resume [box] [--platform ...]` | Resume a paused session. |
@@ -168,7 +168,7 @@ The terminal UI shows session state, a live command timeline, details for the se
 | `pwnj writeup [box] [--stdout]` | Render a Markdown write-up. |
 | `pwnj journal [box]` | Open the live TUI dashboard. |
 | `pwnj replay [box]` | Rewind the session timeline. |
-| `pwnj hook bash|zsh` | Print the shell hook snippet. |
+| `pwnj hook <bash|zsh>` | Print the shell hook snippet. |
 | `pwnj daemon` | Start the local loopback logger. |
 | `pwnj help [command]` / `pwnj <command> --help` | Show the built-in help for the full CLI or any individual subcommand. |
 
