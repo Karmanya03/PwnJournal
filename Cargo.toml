@@ -1,0 +1,20 @@
+[package]
+name = "pwnjournal"
+version = "0.1.0"
+edition = "2024"
+description = "CTF-aware command logger and Markdown write-up generator"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+anyhow = "1"
+chrono = { version = "0.4", features = ["clock", "serde"] }
+clap = { version = "4.6.1", features = ["derive", "env"] }
+comfy-table = "7.2.2"
+crossterm = "0.29.0"
+dirs = "6.0.0"
+once_cell = "1"
+ratatui = "0.30.0"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
