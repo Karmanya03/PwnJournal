@@ -35,102 +35,78 @@ PwnJournal captures shell activity, classifies it into CTF phases, prunes the ce
 - `pwnj` is the primary CLI.
 - `pwnjournal` remains as a compatibility alias, because migrations enjoy leaving tiny scars.
 
-## Installation
+## 🚀 Installation
 
-### One-line install
+We provide multiple ways to install PwnJournal. Choose the method that best fits your environment.
 
+### 📦 Automated Install (Recommended)
+
+The easiest way to install and configure PwnJournal system-wide is to use our bootstrap scripts.
+
+**Linux / macOS:**
 ```bash
-cargo install --locked --path .
+curl -sSL https://raw.githubusercontent.com/Karmanya03/PwnJournal/main/scripts/install.sh | bash
 ```
 
-This builds the project from the repository root and installs both `pwnj` and `pwnjournal` into Cargo's bin directory.
-
-### Direct release install
-
-If you want to install from the latest GitHub release instead of building from source, grab the prebuilt Windows bundle and extract it into your Cargo bin directory:
-
+**Windows (Run in an Administrator PowerShell):**
 ```powershell
-$installDir = Join-Path $HOME '.cargo\bin'; $archive = Join-Path $env:TEMP 'PwnJournal-latest.zip'; Invoke-WebRequest 'https://github.com/Karmanya03/PwnJournal/releases/latest/download/PwnJournal-windows-x64.zip' -OutFile $archive; Expand-Archive $archive -DestinationPath $installDir -Force
+irm https://raw.githubusercontent.com/Karmanya03/PwnJournal/main/scripts/install.ps1 | iex
 ```
 
-That drops the release binaries straight into the directory your shell already expects. If you are on another platform, build from source with `cargo install --locked --path .` until platform-specific release assets are added.
+### ⚡ Pre-built Release (Windows)
 
-For Linux or any other Unix-like shell, the same tagged release can be installed directly from GitHub source with Cargo:
+If you don't have Cargo installed and just want the binary, you can download and extract the latest Windows release automatically:
+```powershell
+irm https://raw.githubusercontent.com/Karmanya03/PwnJournal/main/scripts/install-release.ps1 | iex
+```
+
+### 🛠️ Manual Build from Source
+
+If you prefer to build manually from source, make sure you have [Rust](https://rustup.rs/) installed:
 
 ```bash
+# Build locally from the cloned repository
+cargo install --locked --path .
+
+# Or build directly from GitHub
 cargo install --locked --git https://github.com/Karmanya03/PwnJournal.git --tag v0.1.0
 ```
 
-If you want that install plus PATH refresh in one line on Linux:
+<details>
+<summary><strong>⚙️ Manual PATH Configuration</strong></summary>
 
+If you didn't use the automated scripts, you might need to add PwnJournal to your system PATH manually:
+
+- **Bash / Zsh:** Add `export PATH="$HOME/.cargo/bin:$PATH"` to your `~/.bashrc` or `~/.zshrc`.
+- **Fish:** Run `set -Ux fish_user_paths $HOME/.cargo/bin $fish_user_paths`.
+- **Windows:** Add `%USERPROFILE%\.cargo\bin` to the User PATH in Environment Variables.
+
+</details>
+
+### 🪝 Shell Hook Setup
+
+Once installed, setup the shell hook to automatically capture your commands.
+
+**For Bash:**
 ```bash
-cargo install --locked --git https://github.com/Karmanya03/PwnJournal.git --tag v0.1.0 && export PATH="$HOME/.cargo/bin:$PATH"
+eval "$(pwnj hook bash)"
 ```
 
-### System-wide PATH setup
+**For Zsh:**
+```bash
+eval "$(pwnj hook zsh)"
+```
 
-If you want `pwnj` available system-wide, use one of these root/admin commands:
+*Pro tip: Add these snippets to your shell profile (`~/.bashrc` or `~/.zshrc`) to make them persistent.*
 
-- Linux / Unix-like system-wide profile snippet:
+### 🎯 Typical Workflow
 
-	```bash
-	echo 'export PATH="$HOME/.cargo/bin:$PATH"' | sudo tee /etc/profile.d/pwnj.sh >/dev/null && sudo chmod 644 /etc/profile.d/pwnj.sh
-	```
+1. Work the box normally. The hook sends `LOG\|cwd\|command` messages to the daemon on `127.0.0.1:41737`. If the daemon is down, the hook falls back to `pwnj log`, because resilience should not require a ceremonial reboot.
+2. Generate the write-up when the box is done pretending to be difficult.
 
-- Linux system-wide install into `/usr/local/bin`:
-
-	```bash
-	sudo ln -sf "$HOME/.cargo/bin/pwnj" /usr/local/bin/pwnj && sudo ln -sf "$HOME/.cargo/bin/pwnjournal" /usr/local/bin/pwnjournal
-	```
-
-- Windows system PATH for the current user profile folder added machine-wide, run in elevated PowerShell:
-
-	```powershell
-	$binDir = Join-Path $env:ProgramFiles 'PwnJournal\bin'; New-Item -ItemType Directory -Force $binDir | Out-Null; Copy-Item (Join-Path $HOME '.cargo\bin\pwnj.exe') $binDir -Force; Copy-Item (Join-Path $HOME '.cargo\bin\pwnjournal.exe') $binDir -Force; $machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine'); if ($machinePath -notlike "*$binDir*") { [Environment]::SetEnvironmentVariable('Path', "$machinePath;$binDir", 'Machine') }
-	```
-
-### Manual PATH setup
-
-- Bash / Zsh: add `export PATH="$HOME/.cargo/bin:$PATH"` to `~/.bashrc`, `~/.zshrc`, or the shell file you actually load, then reopen the terminal.
-- Fish: add `set -Ux fish_user_paths $HOME/.cargo/bin $fish_user_paths` to your Fish config or run the one-liner above once.
-- Windows: add `%USERPROFILE%\.cargo\bin` to the User PATH in Environment Variables, then restart your shell or editor.
-- Temporary check: run `pwnj --help` from the same terminal after setting PATH so you know the shell can actually see the binary.
-
-### Auto system-wide setup
-
-If you want a one-liner that installs and publishes the binaries system-wide, use the variant for your platform:
-
-- Linux:
-
-	```bash
-	cargo install --locked --git https://github.com/Karmanya03/PwnJournal.git --tag v0.1.0 && sudo ln -sf "$HOME/.cargo/bin/pwnj" /usr/local/bin/pwnj && sudo ln -sf "$HOME/.cargo/bin/pwnjournal" /usr/local/bin/pwnjournal
-	```
-
-- Windows:
-
-	```powershell
-	cargo install --locked --git https://github.com/Karmanya03/PwnJournal.git --tag v0.1.0; $binDir = Join-Path $env:ProgramFiles 'PwnJournal\bin'; New-Item -ItemType Directory -Force $binDir | Out-Null; Copy-Item (Join-Path $HOME '.cargo\bin\pwnj.exe') $binDir -Force; Copy-Item (Join-Path $HOME '.cargo\bin\pwnjournal.exe') $binDir -Force; $machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine'); if ($machinePath -notlike "*$binDir*") { [Environment]::SetEnvironmentVariable('Path', "$machinePath;$binDir", 'Machine') }
-	```
-
-3. Install the shell hook.
-
-	 ```bash
-	 eval "$(pwnj hook bash)"
-	 ```
-
-	 For zsh:
-
-	 ```bash
-	 eval "$(pwnj hook zsh)"
-	 ```
-
-4. Work the box normally. The hook sends `LOG|cwd|command` messages to the daemon on `127.0.0.1:41737`. If the daemon is down, the hook falls back to `pwnj log`, because resilience should not require a ceremonial reboot.
-
-5. Generate the write-up when the box is done pretending to be difficult.
-
-	 ```bash
-	 pwnj writeup legacy --stdout
-	 ```
+```bash
+pwnj writeup legacy --stdout
+```
 
 ## Feature Overview
 
@@ -156,21 +132,21 @@ The terminal UI shows session state, a live command timeline, details for the se
 
 ## Command Reference
 
-| Command | Purpose |
-| --- | --- |
-| `pwnj start <box> [--ip ...] [--platform htb|thm]` | Start a new session or resume an existing one. |
-| `pwnj stop [box] [--platform ...]` | Stop the current or named session. |
-| `pwnj pause [box] [--platform ...]` | Pause tracking without losing the session. |
-| `pwnj resume [box] [--platform ...]` | Resume a paused session. |
-| `pwnj log --command "..." [--box ...] [--cwd ...] [--phase ...]` | Record a command manually. |
-| `pwnj prune [box] [--apply]` | Preview or apply cleanup rules. |
-| `pwnj list` | Show all tracked boxes. |
-| `pwnj writeup [box] [--stdout]` | Render a Markdown write-up. |
-| `pwnj journal [box]` | Open the live TUI dashboard. |
-| `pwnj replay [box]` | Rewind the session timeline. |
-| `pwnj hook <bash|zsh>` | Print the shell hook snippet. |
-| `pwnj daemon` | Start the local loopback logger. |
-| `pwnj help [command]` / `pwnj <command> --help` | Show the built-in help for the full CLI or any individual subcommand. |
+| Command | Purpose | Example |
+| --- | --- | --- |
+| `pwnj start <box> [--ip ...] [--platform htb/thm]` | Start a new session or resume an existing one. | `pwnj start sightless --ip 10.10.11.32 --platform htb` |
+| `pwnj stop [box] [--platform ...]` | Stop the current or named session. | `pwnj stop sightless` |
+| `pwnj pause [box] [--platform ...]` | Pause tracking without losing the session. | `pwnj pause` |
+| `pwnj resume [box] [--platform ...]` | Resume a paused session. | `pwnj resume sightless` |
+| `pwnj log --command "..." [--box ...] [--cwd ...] [--phase ...]` | Record a command manually. | `pwnj log --command "nmap -sC -sV 10.10.11.32" --phase Scanning` |
+| `pwnj prune [box] [--apply]` | Preview or apply cleanup rules. | `pwnj prune sightless --apply` |
+| `pwnj list` | Show all tracked boxes. | `pwnj list` |
+| `pwnj writeup [box] [--stdout]` | Render a Markdown write-up. | `pwnj writeup sightless --stdout` |
+| `pwnj journal [box]` | Open the live TUI dashboard. | `pwnj journal sightless` |
+| `pwnj replay [box]` | Rewind the session timeline. | `pwnj replay sightless` |
+| `pwnj hook <bash/zsh>` | Print the shell hook snippet. | `pwnj hook zsh` |
+| `pwnj daemon` | Start the local loopback logger. | `pwnj daemon` |
+| `pwnj help [command]` / `pwnj <command> --help` | Show the built-in help for the full CLI or any individual subcommand. | `pwnj start --help` |
 
 ## Configuration
 
@@ -250,3 +226,24 @@ The replay view adds playback controls so you can step through a session like a 
 - The shell hook avoids heavyweight process spawning.
 - The cleanup rules are configurable so you can decide which commands count as evidence and which ones are just the terminal being chatty.
 - The README buttons above are intentionally plain and functional: enough polish to feel intentional, not enough gloss to start pretending it is a landing page for a SaaS that bills by the vowel.
+
+## FAQ
+
+**Q: Will PwnJournal hack the box for me?**  
+A: No. It just patiently records your majestic failures and occasional triumphs so you don't have to desperately scroll back up to remember what flags you passed to `nmap` 4 hours ago.
+
+**Q: Is this going to send my zero-days to the cloud?**  
+A: The only cloud this talks to is the dust cloud blowing out of your laptop's cooling fan. Everything is strictly local, loopback-bound, and completely antisocial.
+
+**Q: I ran `rm -rf /` by mistake. Did PwnJournal log it?**  
+A: Yes, and it will be beautifully formatted in your Markdown write-up under the "Unknown" phase. Your sacrifice will look extremely professional.
+
+**Q: Why Rust?**  
+A: Because if you're going to use a tool while poking at memory corruption vulnerabilities, the least you can do is have the compiler relentlessly yell at you about lifetimes.
+
+---
+
+<p align="center">
+  Built with ☕ and unresolved shell trauma by <a href="https://github.com/Karmanya03">Karmanya</a>.<br/>
+  If this tool saved you from agonizing terminal scrollback archaeology, consider dropping a ⭐ on the repo!
+</p>
