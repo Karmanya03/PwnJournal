@@ -67,60 +67,26 @@ If you want that install plus PATH refresh in one line on Linux:
 cargo install --locked --git https://github.com/Karmanya03/PwnJournal.git --tag v0.1.0 && export PATH="$HOME/.cargo/bin:$PATH"
 ```
 
-### One-line PATH setup
+### System-wide PATH setup
 
-If `pwnj` is not on your PATH after install, use one of these shortcuts:
+If you want `pwnj` available system-wide, use one of these root/admin commands:
 
-- Bash / Zsh current session:
-
-	```bash
-	export PATH="$HOME/.cargo/bin:$PATH"
-	```
-
-- Bash / Zsh persistent setup:
+- Linux / Unix-like system-wide profile snippet:
 
 	```bash
-	echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+	echo 'export PATH="$HOME/.cargo/bin:$PATH"' | sudo tee /etc/profile.d/pwnj.sh >/dev/null && sudo chmod 644 /etc/profile.d/pwnj.sh
 	```
 
-- Fish:
-
-	```fish
-	fish -c 'set -Ux fish_user_paths $HOME/.cargo/bin $fish_user_paths'
-	```
-
-- PowerShell current session:
-
-	```powershell
-	$env:Path = "$env:Path;$HOME\.cargo\bin"
-	```
-
-- PowerShell persistent setup:
-
-	```powershell
-	$cargoBin = Join-Path $HOME '.cargo\bin'; [Environment]::SetEnvironmentVariable('Path', "$env:Path;$cargoBin", 'User')
-	```
-
-### Auto PATH setup
-
-If you want a one-liner that both installs and refreshes PATH in the current shell, use the variant for your environment:
-
-- Bash / Zsh:
+- Linux system-wide install into `/usr/local/bin`:
 
 	```bash
-	cargo install --locked --path . && export PATH="$HOME/.cargo/bin:$PATH"
+	sudo ln -sf "$HOME/.cargo/bin/pwnj" /usr/local/bin/pwnj && sudo ln -sf "$HOME/.cargo/bin/pwnjournal" /usr/local/bin/pwnjournal
 	```
 
-- Fish:
-
-	```fish
-	cargo install --locked --path .; set -Ux fish_user_paths $HOME/.cargo/bin $fish_user_paths
-	```
-
-- PowerShell:
+- Windows system PATH for the current user profile folder added machine-wide, run in elevated PowerShell:
 
 	```powershell
-	cargo install --locked --path .; $env:Path = "$env:Path;$HOME\.cargo\bin"
+	$binDir = Join-Path $env:ProgramFiles 'PwnJournal\bin'; New-Item -ItemType Directory -Force $binDir | Out-Null; Copy-Item (Join-Path $HOME '.cargo\bin\pwnj.exe') $binDir -Force; Copy-Item (Join-Path $HOME '.cargo\bin\pwnjournal.exe') $binDir -Force; $machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine'); if ($machinePath -notlike "*$binDir*") { [Environment]::SetEnvironmentVariable('Path', "$machinePath;$binDir", 'Machine') }
 	```
 
 ### Manual PATH setup
@@ -130,19 +96,21 @@ If you want a one-liner that both installs and refreshes PATH in the current she
 - Windows: add `%USERPROFILE%\.cargo\bin` to the User PATH in Environment Variables, then restart your shell or editor.
 - Temporary check: run `pwnj --help` from the same terminal after setting PATH so you know the shell can actually see the binary.
 
-## Quick Start
+### Auto system-wide setup
 
-1. Start the daemon in one terminal.
+If you want a one-liner that installs and publishes the binaries system-wide, use the variant for your platform:
 
-	 ```bash
-	 pwnj daemon
-	 ```
+- Linux:
 
-2. Start a box session in another terminal.
+	```bash
+	cargo install --locked --git https://github.com/Karmanya03/PwnJournal.git --tag v0.1.0 && sudo ln -sf "$HOME/.cargo/bin/pwnj" /usr/local/bin/pwnj && sudo ln -sf "$HOME/.cargo/bin/pwnjournal" /usr/local/bin/pwnjournal
+	```
 
-	 ```bash
-	 pwnj start legacy --platform htb --ip 10.10.10.10
-	 ```
+- Windows:
+
+	```powershell
+	cargo install --locked --git https://github.com/Karmanya03/PwnJournal.git --tag v0.1.0; $binDir = Join-Path $env:ProgramFiles 'PwnJournal\bin'; New-Item -ItemType Directory -Force $binDir | Out-Null; Copy-Item (Join-Path $HOME '.cargo\bin\pwnj.exe') $binDir -Force; Copy-Item (Join-Path $HOME '.cargo\bin\pwnjournal.exe') $binDir -Force; $machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine'); if ($machinePath -notlike "*$binDir*") { [Environment]::SetEnvironmentVariable('Path', "$machinePath;$binDir", 'Machine') }
+	```
 
 3. Install the shell hook.
 
