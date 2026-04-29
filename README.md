@@ -45,6 +45,28 @@ cargo install --locked --path .
 
 This builds the project from the repository root and installs both `pwnj` and `pwnjournal` into Cargo's bin directory.
 
+### Direct release install
+
+If you want to install from the latest GitHub release instead of building from source, grab the prebuilt Windows bundle and extract it into your Cargo bin directory:
+
+```powershell
+$installDir = Join-Path $HOME '.cargo\bin'; $archive = Join-Path $env:TEMP 'PwnJournal-latest.zip'; Invoke-WebRequest 'https://github.com/Karmanya03/PwnJournal/releases/latest/download/PwnJournal-windows-x64.zip' -OutFile $archive; Expand-Archive $archive -DestinationPath $installDir -Force
+```
+
+That drops the release binaries straight into the directory your shell already expects. If you are on another platform, build from source with `cargo install --locked --path .` until platform-specific release assets are added.
+
+For Linux or any other Unix-like shell, the same tagged release can be installed directly from GitHub source with Cargo:
+
+```bash
+cargo install --locked --git https://github.com/Karmanya03/PwnJournal.git --tag v0.1.0
+```
+
+If you want that install plus PATH refresh in one line on Linux:
+
+```bash
+cargo install --locked --git https://github.com/Karmanya03/PwnJournal.git --tag v0.1.0 && export PATH="$HOME/.cargo/bin:$PATH"
+```
+
 ### One-line PATH setup
 
 If `pwnj` is not on your PATH after install, use one of these shortcuts:
@@ -77,6 +99,28 @@ If `pwnj` is not on your PATH after install, use one of these shortcuts:
 
 	```powershell
 	$cargoBin = Join-Path $HOME '.cargo\bin'; [Environment]::SetEnvironmentVariable('Path', "$env:Path;$cargoBin", 'User')
+	```
+
+### Auto PATH setup
+
+If you want a one-liner that both installs and refreshes PATH in the current shell, use the variant for your environment:
+
+- Bash / Zsh:
+
+	```bash
+	cargo install --locked --path . && export PATH="$HOME/.cargo/bin:$PATH"
+	```
+
+- Fish:
+
+	```fish
+	cargo install --locked --path .; set -Ux fish_user_paths $HOME/.cargo/bin $fish_user_paths
+	```
+
+- PowerShell:
+
+	```powershell
+	cargo install --locked --path .; $env:Path = "$env:Path;$HOME\.cargo\bin"
 	```
 
 ### Manual PATH setup
